@@ -41,12 +41,20 @@ app.get("/users", (request, response) => {
 });
 
 app.post("/users", (request, response) => {
-    const { name, age } = request.body;
-    console.log(uuid.v4());
-    const user = { id: uuid.v4(), name, age };
-    users.push(user);
+    try {
+        const { name, age } = request.body;
+        const user = { id: uuid.v4(), name, age };
 
-    return response.status(201).send(user);
+        if (age < 18) throw new Error("Only allowed users over 18 years old");
+
+        users.push(user);
+
+        return response.status(201).send(user);
+    } catch (err) {
+        return response.status(400).json({ error: err.message });
+    } finally {
+        console.log("Finalizando");
+    }
 });
 
 app.put("/users/:id", checkUserId, (request, response) => {
